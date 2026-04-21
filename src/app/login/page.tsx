@@ -5,6 +5,9 @@ import { useState } from 'react';
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import { GraduationCap, Mail, Lock, ArrowRight } from 'lucide-react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../lib/firebase/client';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -12,6 +15,7 @@ export default function LoginPage() {
     password: '',
   });
 
+  const router = useRouter();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -62,9 +66,14 @@ export default function LoginPage() {
     setIsSuccess(true);
     setFormData({ email: '', password: '' });
 
+    try {
+      await signInWithEmailAndPassword(auth, formData.email, formData.password);
+    } catch (error) {
+      console.error('Error signing in:', error);
+    }
     // Redirect to dashboard after 2 seconds
     setTimeout(() => {
-      window.location.href = '/dashboard';
+      router.push('/dashboard');
     }, 2000);
   };
 

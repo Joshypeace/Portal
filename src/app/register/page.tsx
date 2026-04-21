@@ -5,6 +5,9 @@ import { useState } from 'react';
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import { GraduationCap, Mail, Lock, User, BookOpen } from 'lucide-react';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../lib/firebase/client';
+import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -14,6 +17,7 @@ export default function RegisterPage() {
     confirmPassword: '',
   });
 
+  const router = useRouter();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -76,9 +80,17 @@ export default function RegisterPage() {
     setIsSuccess(true);
     setFormData({ name: '', email: '', password: '', confirmPassword: '' });
 
+    try {
+      // create an account with firebase auth
+      await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+
+    } catch (error) {
+      console.error('Error creating user:', error);
+    }
+
     // Redirect to login after 2 seconds
     setTimeout(() => {
-      window.location.href = '/login';
+      router.push('/login');
     }, 2000);
   };
 
